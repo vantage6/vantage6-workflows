@@ -2,6 +2,21 @@ name: Algorithm release
 
 on:
   workflow_call:
+    inputs:
+      registry:
+        description: "Container registry hostname for docker login (e.g. ghcr.io)"
+        type: string
+        required: false
+        default: ghcr.io
+      registry_username:
+        description: "Registry username (empty uses github.actor)"
+        type: string
+        required: false
+        default: ""
+    secrets:
+      registry_password:
+        description: "Registry password or token (empty uses github.token)"
+        required: false
 
 permissions:
   contents: write
@@ -114,9 +129,9 @@ jobs:
         # pinned to: https://github.com/docker/login-action/releases/tag/v4.1.0
         uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ github.token }}
+          registry: ${{ inputs.registry }}
+          username: ${{ inputs.registry_username != '' && inputs.registry_username || github.actor }}
+          password: ${{ secrets.registry_password || github.token }}
 
       - name: Publish Docker image
         run: make image TAG=$version PUSH_REG=true VANTAGE6_VERSION=$v6_version
