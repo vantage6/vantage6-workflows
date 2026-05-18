@@ -31,6 +31,7 @@ jobs:
     # with:
     #   registry: docker.io
     #   registry_username: myuser
+    #   docker_image: ghcr.io/myorg/algorithm/my-algo   # for v6 major-tag policy (see below)
     # secrets:
     #   registry_password: ${{ secrets.DOCKERHUB_TOKEN }}
 ```
@@ -43,6 +44,7 @@ Replace `<commit-sha>` with a full commit SHA from this repository (pin updates 
 |------|---------|---------|
 | `registry` | `ghcr.io` | Registry hostname for `docker/login-action` |
 | `registry_username` | *(empty → `github.actor`)* (typical for GHCR) | Registry username |
+| `docker_image` | *(empty)* | Full image name **without tag** (e.g. `ghcr.io/vantage6/algorithm/session-basics`). When set, algorithm **prereleases** still push the v6 major tag (`:<major>`) only if that tag does not exist in the registry yet; **stable** algorithm tags always allow the major tag. When empty, prereleases omit the major tag (callers that do not use `INCLUDE_V6_MAJOR_TAG` in `Makefile` are unaffected). |
 
 **Secrets**
 
@@ -59,7 +61,7 @@ The caller and this repository must live under the same GitHub organization (or 
 1. Parses the pushed tag into version components and resolves the remote branch the tag points at.
 2. Installs dependencies with `uv sync` and reads `vantage6.common.__version__` for Docker base tagging.
 3. Creates a GitHub Release (`softprops/action-gh-release`); prerelease when the tag has a non-numeric stage suffix.
-4. Logs in to the configured registry (defaults: `ghcr.io`, `github.actor`, `github.token`) and runs `make image TAG=<tag> PUSH_REG=true VANTAGE6_VERSION=<resolved>`.
+4. Logs in to the configured registry (defaults: `ghcr.io`, `github.actor`, `github.token`), decides whether to pass `INCLUDE_V6_MAJOR_TAG=true` to `make` when the `Makefile` supports it, and runs `make image TAG=<tag> PUSH_REG=true VANTAGE6_VERSION=<resolved>`.
 
 ### Scope
 

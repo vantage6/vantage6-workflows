@@ -13,6 +13,11 @@ on:
         type: string
         required: false
         default: ""
+      docker_image:
+        description: "Full image name without tag (e.g. ghcr.io/org/algorithm/foo) for v6 major-tag policy on algorithm prereleases; omit to skip :<v6-major> on prereleases"
+        type: string
+        required: false
+        default: ""
     secrets:
       registry_password:
         description: "Registry password or token (empty uses github.token)"
@@ -133,5 +138,35 @@ jobs:
           username: ${{ inputs.registry_username != '' && inputs.registry_username || github.actor }}
           password: ${{ secrets.registry_password || github.token }}
 
+      # Stable algorithm tags: always push :<v6-major>. Prerelease: push :<v6-major> only if that tag
+      # does not exist yet (so the first prerelease can publish it; later prereleases do not overwrite).
+      - name: Decide v6 major Docker tag
+        id: v6_major_tag
+        env:
+          STAGE: ${{ needs.version.outputs.stage }}
+          V6_VERSION: ${{ needs.find-current-vantage6-version.outputs.v6_version }}
+          DOCKER_IMAGE: ${{ inputs.docker_image }}
+        run: |
+          set -euo pipefail
+          MAJOR="${V6_VERSION%%.*}"
+          MAJOR=$(echo "$MAJOR" | grep -Eo '^[0-9]+' || true)
+          if [ -z "$MAJOR" ]; then
+            echo "include=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "$STAGE" ]; then
+            echo "include=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "$DOCKER_IMAGE" ]; then
+            echo "include=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if docker buildx imagetools inspect "${DOCKER_IMAGE}:${MAJOR}" >/dev/null 2>&1; then
+            echo "include=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "include=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Publish Docker image
-        run: make image TAG=$version PUSH_REG=true VANTAGE6_VERSION=$v6_version
+        run: make image TAG=$version PUSH_REG=true VANTAGE6_VERSION=$v6_version INCLUDE_V6_MAJOR_TAG=${{ steps.v6_major_tag.outputs.include }}
