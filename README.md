@@ -2,11 +2,16 @@
 
 Reusable [GitHub Actions](https://docs.github.com/en/actions/using-workflows/reusing-workflows) for vantage6 projects.
 
-## Algorithm release (v5)
+## Algorithm release
 
 Workflow: [`.github/workflows/algorithm-release.yml`](.github/workflows/algorithm-release.yml)
 
-Intended for **vantage6 v5** algorithm repositories that use `pyproject.toml`, **uv** (`uv sync`), Python **3.13**, and read the platform version from `vantage6.common.__version__`. It runs on a tag push in the **caller** repository (typically `*.*.*`).
+Intended for **vantage6** algorithm repositories that use `pyproject.toml`, **uv** (`uv sync`), Python **3.13**, and read the platform version from `vantage6.common.__version__`. It runs on a tag push in the **caller** repository (typically `*.*.*`).
+In general, these requirements are met by algorithms created with the [v6-algorithm-template](https://github.com/vantage6/v6-algorithm-template) repository via the CLI command
+``v6 algorithm create``.
+
+Note that the workflow is designed for vantage6 v5+. It will not work for vantage6 v4
+and older.
 
 ### Caller example
 
@@ -37,4 +42,5 @@ The caller and this repository must live under the same GitHub organization (or 
 
 ### Scope
 
-Other algorithm repos still on vantage6 v4 should keep their own workflows until they are migrated to v5; this workflow can be extended or forked later if needed.
+Algorithm repos still on vantage6 v4 should keep their own workflows until they are
+migrated to v5.

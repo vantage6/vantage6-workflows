@@ -1,4 +1,4 @@
-name: Algorithm release (v5 / uv)
+name: Algorithm release
 
 on:
   workflow_call:
