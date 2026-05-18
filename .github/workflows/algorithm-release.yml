@@ -30,7 +30,8 @@ jobs:
           echo "build=${PARTS2[2]}" >> $GITHUB_OUTPUT
 
       - name: Checkout repo
-        uses: actions/checkout@v4
+        # pinned to: https://github.com/actions/checkout/releases/tag/v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
 
@@ -54,10 +55,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        # pinned to: https://github.com/actions/checkout/releases/tag/v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        # pinned to: https://github.com/actions/setup-python/releases/tag/v6.2.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
         with:
           python-version: "3.13"
 
@@ -84,11 +87,13 @@ jobs:
       stage: ${{ needs.version.outputs.stage }}
       branch: ${{ needs.version.outputs.branch }}
     steps:
-      - uses: actions/checkout@v4
+      # pinned to: https://github.com/actions/checkout/releases/tag/v6.0.2
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ env.branch }}
       - name: Release
-        uses: softprops/action-gh-release@v2
+        # pinned to: https://github.com/softprops/action-gh-release/releases/tag/v3.0.0
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda
         with:
           prerelease: ${{ env.stage != '' }}
 
@@ -102,7 +107,8 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        # pinned to: https://github.com/actions/checkout/releases/tag/v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
 
       - name: Login to Docker registry
         # pinned to: https://github.com/docker/login-action/releases/tag/v4.1.0
